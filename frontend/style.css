@@ -1,0 +1,29 @@
+body {
+  font-family: system-ui, Arial, sans-serif;
+  max-width: 720px;
+  margin: 24px auto;
+  padding: 0 12px;
+}
+label {
+  display: block;
+  margin: 8px 0;
+}
+input {
+  padding: 6px 8px;
+  margin-left: 4px;
+}
+button {
+  padding: 8px 12px;
+  margin: 6px 4px 0 0;
+}
+video {
+  width: 100%;
+  max-height: 360px;
+  background: #000;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+#status-text, #start-message {
+  margin-top: 10px;
+  min-height: 24px;
+}

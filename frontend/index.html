@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Web Interview Recorder</title>
+  <!-- file CSS nhẹ nhàng, không có cũng không sao -->
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <main>
+    <!-- Màn hình bắt đầu: nhập token + tên -->
+    <section id="start-screen">
+      <h1>Web Interview Recorder</h1>
+
+      <label>
+        Token:
+        <input id="token-input" placeholder="Nhập token (vd: abc123)" />
+      </label>
+
+      <label>
+        Tên (không dấu, không khoảng trắng):
+        <input id="name-input" placeholder="vd: anhtu" />
+      </label>
+
+      <button id="btn-start">Bắt đầu</button>
+      <p id="start-message"></p>
+    </section>
+
+    <!-- Màn hình phỏng vấn -->
+    <section id="interview-screen" style="display:none">
+      <!-- video preview -->
+      <video id="video-preview" autoplay playsinline muted></video>
+
+      <!-- hiển thị câu hỏi hiện tại -->
+      <h2 id="question-title"></h2>
+
+      <!-- cụm nút điều khiển -->
+      <div>
+        <button id="btn-record">Record</button>
+        <button id="btn-stop" disabled>Stop</button>
+        <button id="btn-next" disabled>Next</button>
+        <button id="btn-finish">Finish</button>
+      </div>
+
+      <!-- trạng thái: đang ghi, đang upload, lỗi,... -->
+      <p id="status-text"></p>
+    </section>
+  </main>
+
+  <!-- Nhúng file JavaScript -->
+  <script src="./app.js"></script>
+</body>
+</html>

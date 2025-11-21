@@ -1,0 +1,29 @@
+{
+  "userName": "anhtu",
+  "folder": "21_11_2025_13_51_anhtu",
+  "timeZone": "Asia/Bangkok",
+  "uploaded": [
+    {
+      "q": 1,
+      "file": "Q1.webm",
+      "uploadedAt": "2025-11-21T13:51:57.491884+07:00"
+    }
+  ],
+  "finished": true,
+  "questionsCount": 5,
+  "logs": [
+    {
+      "at": "2025-11-21T13:51:28.153765+07:00",
+      "event": "session/start"
+    },
+    {
+      "at": "2025-11-21T13:51:57.491927+07:00",
+      "event": "upload-one",
+      "q": 1
+    },
+    {
+      "at": "2025-11-21T13:52:38.956497+07:00",
+      "event": "session/finish"
+    }
+  ]
+}
