@@ -1,29 +1,104 @@
-body {
-  font-family: system-ui, Arial, sans-serif;
-  max-width: 720px;
-  margin: 24px auto;
-  padding: 0 12px;
+:root {
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --border: #e2e8f0;
+  --primary: #2563eb;
+  --primary-hover: #1d4ed8;
+  --text: #0f172a;
+  --muted: #64748b;
+  --radius: 12px;
+  --shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
+
+body {
+  font-family: "Inter", system-ui, Arial, sans-serif;
+  max-width: 760px;
+  margin: 32px auto;
+  padding: 0 16px;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.container {
+  background: var(--card);
+  padding: 24px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+}
+
+/* LABEL */
 label {
   display: block;
-  margin: 8px 0;
+  margin: 10px 0 4px;
+  font-weight: 600;
+  color: var(--muted);
 }
+
+/* INPUT */
 input {
-  padding: 6px 8px;
-  margin-left: 4px;
+  padding: 10px 12px;
+  width: 100%;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  font-size: 15px;
+  transition: border-color 0.2s;
 }
+
+input:focus {
+  border-color: var(--primary);
+  outline: none;
+}
+
+/* BUTTON */
 button {
-  padding: 8px 12px;
-  margin: 6px 4px 0 0;
+  padding: 10px 16px;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--primary);
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 10px 6px 0 0;
+  transition: background 0.2s, transform 0.1s;
 }
+
+button:hover {
+  background: var(--primary-hover);
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+/* VIDEO */
 video {
   width: 100%;
-  max-height: 360px;
+  max-height: 380px;
   background: #000;
-  border-radius: 8px;
-  margin-bottom: 8px;
+  border-radius: var(--radius);
+  margin: 12px 0;
+  box-shadow: var(--shadow);
 }
-#status-text, #start-message {
-  margin-top: 10px;
+
+/* STATUS TEXTS */
+#status-text,
+#start-message {
+  margin-top: 12px;
   min-height: 24px;
+  color: var(--muted);
+  font-size: 15px;
 }
+
+/* NICE CARD SECTION DIVIDER */
+.section-title {
+  margin-top: 26px;
+  margin-bottom: 6px;
+  font-weight: 700;
+  color: var(--text);
+  font-size: 18px;
+}
+
+
