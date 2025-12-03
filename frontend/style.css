@@ -5,9 +5,22 @@
   --primary: #2563eb;
   --primary-hover: #1d4ed8;
   --text: #0f172a;
-  --muted: #64748b;
+  --muted: #475569; /* slightly darker for better contrast */
   --radius: 12px;
   --shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* sensible defaults */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 16px;
 }
 
 body {
@@ -20,6 +33,7 @@ body {
   line-height: 1.6;
 }
 
+/* card container */
 .container {
   background: var(--card);
   padding: 24px;
@@ -36,19 +50,38 @@ label {
   color: var(--muted);
 }
 
-/* INPUT */
-input {
+/* form controls (input, textarea, select) */
+input,
+textarea,
+select {
   padding: 10px 12px;
   width: 100%;
   border-radius: var(--radius);
   border: 1px solid var(--border);
   font-size: 15px;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.12s;
+  background: white;
+  color: var(--text);
+  min-height: 40px;
 }
 
-input:focus {
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
   border-color: var(--primary);
   outline: none;
+  box-shadow: 0 0 0 4px rgba(37,99,235,0.08);
+}
+
+/* prefer keyboard-visible focus only */
+:focus-visible {
+  outline: 3px solid rgba(37,99,235,0.12);
+  outline-offset: 2px;
 }
 
 /* BUTTON */
@@ -62,7 +95,10 @@ button {
   font-weight: 600;
   cursor: pointer;
   margin: 10px 6px 0 0;
-  transition: background 0.2s, transform 0.1s;
+  transition: background 0.2s, transform 0.08s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 button:hover {
@@ -73,6 +109,23 @@ button:active {
   transform: scale(0.97);
 }
 
+/* disabled state */
+button:disabled,
+[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  background: linear-gradient(180deg, #ddd 0%, #ccc 100%);
+}
+
+/* group controls (useful for action rows) */
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
 /* VIDEO */
 video {
   width: 100%;
@@ -81,6 +134,8 @@ video {
   border-radius: var(--radius);
   margin: 12px 0;
   box-shadow: var(--shadow);
+  object-fit: contain;
+  display: block;
 }
 
 /* STATUS TEXTS */
@@ -101,4 +156,36 @@ video {
   font-size: 18px;
 }
 
+/* utility: visually-hidden for accessibility */
+.sr-only {
+  position: absolute !important;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap;
+}
+
+/* prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* small screens: ensure comfortable spacing */
+@media (max-width: 420px) {
+  body {
+    margin: 20px 12px;
+  }
+
+  .container {
+    padding: 16px;
+  }
+
+  video {
+    max-height: 260px;
+  }
+}
 
