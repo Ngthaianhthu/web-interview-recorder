@@ -73,32 +73,21 @@ button:active {
   transform: scale(0.97);
 }
 
-/* VIDEO */
-video {
+button:disabled {
+  background: #cbd5e1;
+  cursor: not-allowed;
+}
+
+/* VIDEO PREVIEW */
+#video-preview {
   width: 100%;
   max-height: 380px;
   background: #000;
   border-radius: var(--radius);
   margin: 12px 0;
   box-shadow: var(--shadow);
+  object-fit: cover;
 }
 
-/* STATUS TEXTS */
-#status-text,
-#start-message {
-  margin-top: 12px;
-  min-height: 24px;
-  color: var(--muted);
-  font-size: 15px;
-}
-
-/* NICE CARD SECTION DIVIDER */
-.section-title {
-  margin-top: 26px;
-  margin-bottom: 6px;
-  font-weight: 700;
-  color: var(--text);
-  font-size: 18px;
-}
-
-
+/* STATUS TEXT */
+#statu

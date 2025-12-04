@@ -1,48 +1,52 @@
 // ===== CẤU HÌNH CƠ BẢN =====
-const API_BASE = "http://127.0.0.1:8000";   // backend FastAPI
-const MAX_QUESTIONS = 5;                    // số câu hỏi
+const API_BASE = "http://127.0.0.1:8000";
+const MAX_QUESTIONS = 5;
 
-// ===== LẤY CÁC PHẦN TỬ DOM =====
-const startScreen   = document.getElementById("start-screen");
-const interviewScreen = document.getElementById("interview-screen");
+// ===== LẤY DOM =====
+const startScreen      = document.getElementById("start-screen");
+const interviewScreen  = document.getElementById("interview-screen");
 
-const tokenInput    = document.getElementById("token-input");
-const nameInput     = document.getElementById("name-input");
-const btnStart      = document.getElementById("btn-start");
-const startMessage  = document.getElementById("start-message");
+const tokenInput       = document.getElementById("token-input");
+const nameInput        = document.getElementById("name-input");
+const btnStart         = document.getElementById("btn-start");
+const startMessage     = document.getElementById("start-message");
 
-const videoPreview  = document.getElementById("video-preview");
-const questionTitle = document.getElementById("question-title");
+const videoPreview     = document.getElementById("video-preview");
+const questionTitle    = document.getElementById("question-title");
 
-const btnRecord     = document.getElementById("btn-record");
-const btnStop       = document.getElementById("btn-stop");
-const btnNext       = document.getElementById("btn-next");
-const btnFinish     = document.getElementById("btn-finish");
-const statusText    = document.getElementById("status-text");
+const btnRecord        = document.getElementById("btn-record");
+const btnStop          = document.getElementById("btn-stop");
+const btnNext          = document.getElementById("btn-next");
+const btnFinish        = document.getElementById("btn-finish");
+const statusText       = document.getElementById("status-text");
+const btnRetryUpload   = document.getElementById("btn-retry-upload");
 
 // ===== BIẾN TRẠNG THÁI =====
-let currentToken = null;    // token backend
-let currentFolder = null;   // tên thư mục session server trả về
+let currentToken = null;
+let currentFolder = null;
 let currentQuestionIndex = 1;
 
-let stream = null;          // MediaStream camera/mic
-let mediaRecorder = null;   // MediaRecorder object
-let recordedChunks = [];    // các mảnh video của 1 câu hỏi
+let stream = null;
+let mediaRecorder = null;
+let recordedChunks = [];
 
-// ===== HÀM GỌI BACKEND =====
+const QUESTIONS = [
+  "Hãy giới thiệu ngắn gọn về bản thân và kinh nghiệm nổi bật của bạn.",
+  "Tại sao bạn muốn ứng tuyển vào vị trí này trong công ty?",
+  "Điểm mạnh lớn nhất của bạn trong công việc là gì? Hãy nêu ví dụ cụ thể.",
+  "Điểm yếu nào bạn đang cố cải thiện? Bạn đã làm gì để cải thiện nó?",
+  "Hãy kể về một thành tựu mà bạn tự hào nhất trong sự nghiệp và cách bạn đạt được nó."
+];
 
-// 1) verify token
+// ===== API CALLS =====
 async function apiVerifyToken(token) {
   const res = await fetch(`${API_BASE}/api/verify-token`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ token })
   });
-
-  if (!res.ok) {
-    throw new Error("Token không hợp lệ");
-  }
-  return res.json(); // { ok: true }
+  if (!res.ok) throw new Error("Token không hợp lệ");
+  return res.json();
 }
 
 // 2) start session
@@ -52,11 +56,8 @@ async function apiStartSession(token, userName) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ token, userName })
   });
-
-  if (!res.ok) {
-    throw new Error("Không tạo được phiên phỏng vấn");
-  }
-  return res.json(); // { ok: true, folder: "dd_mm_yyyy_HH_MM_ten" }
+  if (!res.ok) throw new Error("Không tạo được phiên phỏng vấn");
+  return res.json();
 }
 
 // 3) upload từng câu hỏi
@@ -65,20 +66,11 @@ async function apiUploadOne(token, folder, questionIndex, blob) {
   form.append("token", token);
   form.append("folder", folder);
   form.append("questionIndex", String(questionIndex));
-  form.append(
-    "video",
-    new File([blob], `Q${questionIndex}.webm`, { type: "video/webm" })
-  );
+  form.append("video", new File([blob], `Q${questionIndex}.webm`, { type: "video/webm" }));
 
-  const res = await fetch(`${API_BASE}/api/upload-one`, {
-    method: "POST",
-    body: form
-  });
-
-  if (!res.ok) {
-    throw new Error("Upload thất bại");
-  }
-  return res.json(); // { ok: true, savedAs: "Q1.webm", ... }
+  const res = await fetch(`${API_BASE}/api/upload-one`, { method: "POST", body: form });
+  if (!res.ok) throw new Error("Upload thất bại");
+  return res.json();
 }
 
 // 4) finish session
@@ -88,35 +80,43 @@ async function apiFinishSession(token, folder, questionsCount) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ token, folder, questionsCount })
   });
-
-  if (!res.ok) {
-    throw new Error("Finish session lỗi");
-  }
-  return res.json(); // { ok: true }
+  if (!res.ok) throw new Error("Finish session lỗi");
+  return res.json();
 }
 
-// ===== HÀM LIÊN QUAN ĐẾN CAMERA & GHI HÌNH =====
-
+// ===== CAMERA =====
 // xin quyền cam/mic và hiện preview
 async function initCamera() {
-  stream = await navigator.mediaDevices.getUserMedia({
-    video: true,
-    audio: true
-  });
-  videoPreview.srcObject = stream;
+
+  statusText.textContent = "Đang xin quyền camera…";
+
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: true,
+      audio: true
+    });
+
+    statusText.textContent = "Đã bật camera. Sẵn sàng ghi hình!";
+    videoPreview.srcObject = stream;
+
+  } catch (err) {
+    console.error("Camera error:", err);
+
+    if (err.name === "NotAllowedError") {
+      statusText.textContent = "Bạn đã từ chối quyền camera/micro.";
+      showCameraPermissionModal();
+      btnRecord.disabled = true;
+      return;
+    }
+
+    statusText.textContent = "Không thể truy cập camera.";
+  }
 }
 
-// thiết lập MediaRecorder cho 1 session
+// ===== RECORDER =====
 function setupRecorder() {
-  recordedChunks = []; // reset
-
+  recordedChunks = []; //reset
   mediaRecorder = new MediaRecorder(stream, { mimeType: "video/webm" });
-
-  mediaRecorder.ondataavailable = (event) => {
-    if (event.data.size > 0) {
-      recordedChunks.push(event.data);
-    }
-  };
 
   mediaRecorder.onstop = async () => {
     // khi stop, ghép chunk thành 1 blob
@@ -126,47 +126,64 @@ function setupRecorder() {
 
     try {
       await uploadWithRetry(blob, currentQuestionIndex);
-      statusText.textContent = "Upload xong ✅";
-      btnNext.disabled = false; // cho phép sang câu tiếp theo
-    } catch (err) {
-      statusText.textContent = "Upload thất bại nhiều lần. Vui lòng thử lại.";
+      statusText.textContent = "Upload xong!";
+      btnNext.disabled = false;
+      btnRetryUpload.style.display = "none";
+    } catch {
+      statusText.textContent = "Upload thất bại. Nhấn Retry.";
+      btnRetryUpload.style.display = "inline-block";
+
+      window._lastFailedBlob = blob;
+      window._lastFailedIndex = currentQuestionIndex;
     }
   };
 }
 
-// upload có retry (backoff đơn giản: 1s, 2s, 4s)
-async function uploadWithRetry(blob, questionIndex) {
-  const delays = [1000, 2000, 4000]; // ms
-
-  for (let attempt = 0; attempt < delays.length; attempt++) {
+// Retry 1s – 2s – 4s
+async function uploadWithRetry(blob, index) {
+  const delays = [1000, 2000, 4000];
+  for (let i = 0; i < delays.length; i++) {
     try {
-      await apiUploadOne(currentToken, currentFolder, questionIndex, blob);
-      return; // thành công -> thoát
-    } catch (e) {
-      console.warn("Upload lỗi, thử lại lần", attempt + 1, e);
-      if (attempt === delays.length - 1) throw e; // hết lần thử
-      await new Promise((resolve) => setTimeout(resolve, delays[attempt]));
+      await apiUploadOne(currentToken, currentFolder, index, blob);
+      return;
+    } catch {
+      if (i === delays.length - 1) throw new Error("Upload failed");
+      await new Promise((r) => setTimeout(r, delays[i]));
     }
   }
 }
 
-// hiển thị text câu hỏi (ở đây chỉ hiển thị số, bạn muốn có nội dung thì chỉnh thêm)
+// ===== UI =====
 function updateQuestionTitle() {
-  questionTitle.textContent = `Câu hỏi ${currentQuestionIndex}/${MAX_QUESTIONS}`;
+  questionTitle.textContent =
+    `Câu ${currentQuestionIndex}/${MAX_QUESTIONS}: ${QUESTIONS[currentQuestionIndex - 1]}`;
 }
 
-// ===== SỰ KIỆN NÚT =====
+function sanitizeName(raw) {
+  const name = raw.trim();
+  return /^[a-zA-Z0-9_]+$/.test(name) ? name.toLowerCase() : null;
+}
 
-// Khi bấm "Bắt đầu"
+// ===== MODAL =====
+function showCameraPermissionModal() {
+  document.getElementById("camera-permission-modal").style.display = "flex";
+}
+
+document.getElementById("close-permission-modal")
+  .addEventListener("click", () => {
+    document.getElementById("camera-permission-modal").style.display = "none";
+  });
+
+// ===== BUTTON EVENTS =====
 btnStart.addEventListener("click", async () => {
   const token = tokenInput.value.trim();
-  const name = nameInput.value.trim();
+  const safeName = sanitizeName(nameInput.value);
 
-  if (!token || !name) {
-    startMessage.textContent = "Vui lòng nhập đầy đủ token và tên.";
-    return;
-  }
+  if (!token) return startMessage.textContent = "Vui lòng nhập token.";
+  if (!safeName)
+    return startMessage.textContent = "Tên không hợp lệ (a-z, 0-9, không dấu).";
 
+  btnStart.disabled = true;
   startMessage.textContent = "Đang kiểm tra token...";
   btnStart.disabled = true;
 
@@ -174,8 +191,8 @@ btnStart.addEventListener("click", async () => {
     // 1) verify token
     await apiVerifyToken(token);
 
-    // 2) start session
-    const res = await apiStartSession(token, name);
+    // 2) start session 
+    const res = await apiStartSession(token, safeName);
     currentToken = token;
     currentFolder = res.folder;
 
@@ -192,8 +209,7 @@ btnStart.addEventListener("click", async () => {
     statusText.textContent = "Sẵn sàng ghi câu hỏi 1.";
 
   } catch (err) {
-    console.error(err);
-    startMessage.textContent = err.message || "Có lỗi xảy ra khi bắt đầu.";
+    startMessage.textContent = err.message;
     btnStart.disabled = false;
   }
 });
@@ -205,6 +221,7 @@ btnRecord.addEventListener("click", () => {
   }
   recordedChunks = [];
   mediaRecorder.start();
+  recordedChunks = [];
 
   statusText.textContent = "Đang ghi hình...";
   btnRecord.disabled = true;
@@ -214,17 +231,14 @@ btnRecord.addEventListener("click", () => {
 
 // Khi bấm "Stop"
 btnStop.addEventListener("click", () => {
-  if (mediaRecorder && mediaRecorder.state === "recording") {
-    mediaRecorder.stop();
-    statusText.textContent = "Đã dừng ghi, đang xử lý...";
-  }
+  if (mediaRecorder.state === "recording") mediaRecorder.stop();
   btnStop.disabled = true;
 });
 
 // Khi bấm "Next"
 btnNext.addEventListener("click", () => {
   if (currentQuestionIndex < MAX_QUESTIONS) {
-    currentQuestionIndex += 1;
+    currentQuestionIndex++;
     updateQuestionTitle();
 
     // chuẩn bị cho lần ghi tiếp theo
@@ -232,26 +246,40 @@ btnNext.addEventListener("click", () => {
     btnNext.disabled = true;
     statusText.textContent = `Sẵn sàng ghi câu hỏi ${currentQuestionIndex}.`;
   } else {
-    statusText.textContent = "Đã hết câu hỏi, bạn có thể nhấn Finish.";
+    statusText.textContent = "Đã hết câu hỏi!";
   }
 });
 
 // Khi bấm "Finish"
 btnFinish.addEventListener("click", async () => {
-  if (!currentToken || !currentFolder) {
-    statusText.textContent = "Chưa có phiên hợp lệ.";
-    return;
-  }
-
-  statusText.textContent = "Đang hoàn tất phiên phỏng vấn...";
+  statusText.textContent = "Đang hoàn tất phiên...";
   btnFinish.disabled = true;
 
   try {
     await apiFinishSession(currentToken, currentFolder, MAX_QUESTIONS);
-    statusText.textContent = "Hoàn tất phiên phỏng vấn. Cảm ơn bạn!";
-  } catch (err) {
-    console.error(err);
-    statusText.textContent = "Finish lỗi, vui lòng thử lại.";
+    statusText.textContent = "Hoàn tất phỏng vấn!";
+  } catch {
+    statusText.textContent = "Finish lỗi.";
     btnFinish.disabled = false;
+  }
+});
+
+btnRetryUpload.addEventListener("click", async () => {
+  if (!window._lastFailedBlob) {
+    statusText.textContent = "Không có video để retry.";
+    return;
+  }
+
+  btnRetryUpload.disabled = true;
+  statusText.textContent = "Retry upload...";
+
+  try {
+    await uploadWithRetry(window._lastFailedBlob, window._lastFailedIndex);
+    statusText.textContent = "Retry thành công!";
+    btnRetryUpload.style.display = "none";
+  } catch {
+    statusText.textContent = "Retry thất bại.";
+  } finally {
+    btnRetryUpload.disabled = false;
   }
 });
