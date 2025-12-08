@@ -258,6 +258,8 @@ btnStart.addEventListener("click", async () => {
 
 // Khi bấm "Record"
 btnRecord.addEventListener("click", () => {
+  document.getElementById("blur-overlay").classList.add("show");
+  
   if (!mediaRecorder) {
     setupRecorder();
   }
@@ -300,6 +302,8 @@ btnFinish.addEventListener("click", async () => {
   try {
     await apiFinishSession(currentToken, currentFolder, MAX_QUESTIONS);
     statusText.textContent = "Hoàn tất phỏng vấn!";
+    document.getElementById("blur-overlay").classList.remove("show");
+
   } catch {
     statusText.textContent = "Finish lỗi.";
     btnFinish.disabled = false;
