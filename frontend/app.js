@@ -86,18 +86,59 @@ async function apiFinishSession(token, folder, questionsCount) {
 
 // ===== CAMERA =====
 // xin quyền cam/mic và hiện preview
+// ===== CAMERA + NOISE CANCELLATION =====
 async function initCamera() {
-
   statusText.textContent = "Đang xin quyền camera…";
 
   try {
-    stream = await navigator.mediaDevices.getUserMedia({
+    // --- STEP 1: Lấy stream gốc với noise suppression của browser ---
+    const rawStream = await navigator.mediaDevices.getUserMedia({
       video: true,
-      audio: true
+      audio: {
+        noiseSuppression: true,
+        echoCancellation: true,
+        autoGainControl: true
+      }
     });
 
-    statusText.textContent = "Đã bật camera. Sẵn sàng ghi hình!";
-    videoPreview.srcObject = stream;
+    // --- STEP 2: Tạo AudioContext để xử lý tiếng ồn mạnh ---
+    const audioCtx = new AudioContext();
+    const src = audioCtx.createMediaStreamSource(rawStream);
+
+    // High-pass filter – loại tiếng ù, tiếng quạt, tiếng rung thấp
+    const highPass = audioCtx.createBiquadFilter();
+    highPass.type = "highpass";
+    highPass.frequency.value = 200;
+
+    // Low-pass filter – loại tiếng rè, tiếng rít cao
+    const lowPass = audioCtx.createBiquadFilter();
+    lowPass.type = "lowpass";
+    lowPass.frequency.value = 6000;
+
+    // Gain – giúp giọng rõ hơn
+    const gainNode = audioCtx.createGain();
+    gainNode.gain.value = 1.15;
+
+    // Nối pipeline lọc
+    src.connect(highPass);
+    highPass.connect(lowPass);
+    lowPass.connect(gainNode);
+
+    // Kết quả audio cuối
+    const processedAudio = audioCtx.createMediaStreamDestination();
+    gainNode.connect(processedAudio);
+
+    // --- STEP 3: Ghép video gốc + audio đã lọc ---
+    const finalStream = new MediaStream([
+      ...rawStream.getVideoTracks(),
+      ...processedAudio.stream.getAudioTracks(),
+    ]);
+
+    // --- STEP 4: Hiển thị preview video người dùng ---
+    videoPreview.srcObject = finalStream;
+
+    stream = finalStream; // Đây là stream dùng để record
+    statusText.textContent = "Đã bật camera + noise cancellation.";
 
   } catch (err) {
     console.error("Camera error:", err);
@@ -112,6 +153,7 @@ async function initCamera() {
     statusText.textContent = "Không thể truy cập camera.";
   }
 }
+
 
 // ===== RECORDER =====
 function setupRecorder() {
