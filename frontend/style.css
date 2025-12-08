@@ -91,3 +91,20 @@ button:disabled {
 
 /* STATUS TEXT */
 #statu
+
+/* ===== BACKGROUND BLUR OVERLAY ===== */
+#blur-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 5;
+  transition: opacity 0.25s ease;
+}
+
+#blur-overlay.show {
+  opacity: 1;
+}
