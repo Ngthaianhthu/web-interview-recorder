@@ -1,98 +1,66 @@
-<!doctype html>
-<html lang="vi">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Web Interview Recorder</title>
-  <!-- file CSS nhẹ, không có cũng không sao -->
-  <link rel="stylesheet" href="./style.css" />
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web Interview Recorder</title>
+
+    <!-- Font -->
+    <link rel="stylesheet" href="./style.css" />
 </head>
+
 <body>
-  <main>
-    <!-- ==================== MÀN HÌNH BẮT ĐẦU ==================== -->
-    <section id="start-screen">
-      <h1>Web Interview Recorder</h1>
 
-      <label>
-        Token:
-        <input id="token-input" placeholder="Nhập token: (vd: abc123)" />
-      </label>
+    <!-- PAGE 1 -->
+    <section id="start-screen" class="page1">
 
-      <label>
-        Tên (không dấu, không khoảng trắng):
-        <input id="name-input" placeholder="vd: anhtu" />
-      </label>
+        <!-- LEFT CONTENT -->
+        <div class="left-box">
+            <h1 class="title">Web<br>interview<br>recorder</h1>
 
-      <button id="btn-start">Bắt đầu</button>
-      <p id="start-message"></p>
+            <div class="input-group">
+                <label>TOKEN (EG: ABC123)</label>
+                <input id="token-input" />
+            </div>
+
+            <div class="input-group">
+                <label>NAME (EG: ANHTU)</label>
+                <input id="name-input" />
+            </div>
+
+            <button id="btn-start" class="start-btn">START</button>
+            <p id="start-message"></p>
+        </div>
+
+        <!-- RIGHT IMAGE -->
+        <div class="right-box">
+            <img src="./assets/images/image1.png" class="hero-image">
+        </div>
     </section>
 
-    <!-- ==================== MÀN HÌNH PHỎNG VẤN ==================== -->
-    <section id="interview-screen" style="display:none">
+    <!-- PAGE 2 -->
+    <section id="interview-screen" class="page2" style="display:none;">
 
-      <!-- VIDEO PREVIEW -->
-      <video id="video-preview" autoplay playsinline muted></video>
+        <img src="./assets/images/image2.png" class="decor-img-top">
+        <img src="./assets/images/image3.png" class="decor-img-left">
 
-      <!-- hiển thị câu hỏi hiện tại -->
-      <h2 id="question-title"></h2>
+        <!-- Webcam frame -->
+        <div class="webcam-box">
+            <video id="video-preview" autoplay playsinline muted></video>
+        </div>
 
-      <!-- cụm nút điều khiển -->
-      <div>
-        <button id="btn-record">Record</button>
-        <button id="btn-stop" disabled>Stop</button>
-        <button id="btn-next" disabled>Next</button>
-        <button id="btn-finish">Finish</button>
-      </div>
+        <h2 id="question-title" class="question"></h2>
 
-      <!-- trạng thái: đang ghi, đang upload, lỗi,... -->
-      <p id="status-text"></p>
-      <button id="btn-retry-upload" style="display:none;">Retry Upload</button>
+        <div class="button-row">
+            <button id="btn-record">record</button>
+            <button id="btn-stop" disabled>stop</button>
+            <button id="btn-next" disabled>next</button>
+            <button id="btn-finish">finish</button>
+        </div>
+
+        <p id="status-text"></p>
     </section>
-  </main>
 
-  <!-- ==================== MODAL QUYỀN CAMERA ==================== -->
-  <div id="camera-permission-modal" class="modal" style="
-    display:none; 
-    position:fixed; 
-    left:0; 
-    top:0; 
-    width:100%; 
-    height:100%;
-    background:rgba(0,0,0,0.6); 
-    justify-content:center; 
-    align-items:center;
-  ">
-    <div style="
-      background:white; 
-      padding:20px; 
-      border-radius:10px;
-      max-width:400px; 
-      text-align:center;
-    ">
-      <h3>Bật lại quyền Camera/Micro</h3>
-      <p>Bạn đã từ chối quyền camera/micro.<br>Vui lòng bật lại.</p>
-
-      <ol style="text-align:left; margin-top:10px;">
-        <li>Nhấn vào biểu tượng ổ khóa trên thanh địa chỉ.</li>
-        <li>Chọn <b>Allow</b> cho Camera và Microphone.</li>
-        <li>Reload trang.</li>
-      </ol>
-
-      <button id="close-permission-modal" style="
-        margin-top:15px;
-        padding:8px 12px;
-        background:#007bff;
-        color:white;
-        border:none;
-        border-radius:5px;
-        cursor:pointer;
-      ">
-        Tôi đã hiểu
-      </button>
-    </div>
-  </div>
-
-  <!-- ==================== SCRIPT ==================== -->
-  <script defer src="./app.js"></script>
+    <script defer src="./app.js"></script>
 </body>
 </html>
