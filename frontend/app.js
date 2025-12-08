@@ -160,8 +160,14 @@ function setupRecorder() {
   recordedChunks = []; //reset
   mediaRecorder = new MediaRecorder(stream, { mimeType: "video/webm" });
 
+  mediaRecorder.ondataavailable = (event) => {
+    if (event.data.size > 0) {
+      recordedChunks.push(event.data);
+    }
+  };
+
   mediaRecorder.onstop = async () => {
-    // khi stop, ghép chunk thành 1 blob
+
     const blob = new Blob(recordedChunks, { type: "video/webm" });
 
     statusText.textContent = "Đang upload video...";
@@ -227,7 +233,6 @@ btnStart.addEventListener("click", async () => {
 
   btnStart.disabled = true;
   startMessage.textContent = "Đang kiểm tra token...";
-  btnStart.disabled = true;
 
   try {
     // 1) verify token
@@ -263,7 +268,6 @@ btnRecord.addEventListener("click", () => {
   }
   recordedChunks = [];
   mediaRecorder.start();
-  recordedChunks = [];
 
   statusText.textContent = "Đang ghi hình...";
   btnRecord.disabled = true;
@@ -288,7 +292,7 @@ btnNext.addEventListener("click", () => {
     btnNext.disabled = true;
     statusText.textContent = `Sẵn sàng ghi câu hỏi ${currentQuestionIndex}.`;
   } else {
-    statusText.textContent = "Đã hết câu hỏi!";
+    statusText.textContent = "Đã hết câu hỏi! Vui lòng ấn Finish để gửi bài phỏng vấn!";
   }
 });
 

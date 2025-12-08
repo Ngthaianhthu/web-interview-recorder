@@ -22,10 +22,22 @@ body {
 
 .container {
   background: var(--card);
-  padding: 24px;
+  padding: 32px;
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   border: 1px solid var(--border);
+  transition: box-shadow 0.25s ease, transform 0.06s ease;
+}
+
+.container:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+  border-color: rgba(37, 99, 235, 0.25);
+}
+
+.container:active {
+  transform: scale(0.98);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.06);
 }
 
 /* LABEL */
@@ -46,9 +58,16 @@ input {
   transition: border-color 0.2s;
 }
 
+input::placeholder {
+  color: #94a3b8;
+  opacity: 1;
+}
+
 input:focus {
   border-color: var(--primary);
   outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+  transition: box-shadow 0.18s ease, border-color 0.18s ease;
 }
 
 /* BUTTON */
@@ -87,7 +106,29 @@ button:disabled {
   margin: 12px 0;
   box-shadow: var(--shadow);
   object-fit: cover;
+  border: 1px solid rgba(0,0,0,0.06);
+  overflow: hidden;
 }
 
 /* STATUS TEXT */
-#statu
+#status-text,
+#start-message {
+  margin-top: 12px;
+  min-height: 24px;
+  color: var(--muted);
+  font-size: 15px;
+}
+
+/* SECTION TITLES */
+.section-title {
+  margin-top: 26px;
+  margin-bottom: 6px;
+  font-weight: 700;
+  color: var(--text);
+  font-size: 18px;
+}
+
+/* HIDE ELEMENTS WITH display:none WHEN CHANGED */
+.hidden {
+  display: none !important;
+}

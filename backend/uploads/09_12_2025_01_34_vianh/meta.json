@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "sessionStart": "2025-12-09T01:34:59.753328+07:00",
+  "sessionEnd": null,
+  "userName": "vianh",
+  "folder": "09_12_2025_01_34_vianh",
+  "timeZone": "Asia/Bangkok",
+  "uploaded": [
+    {
+      "q": 1,
+      "file": "Q1.webm",
+      "sizeMB": 1.0,
+      "checksum": "15fa34e4009c9672589f65949b69feb9",
+      "mime": "video/webm",
+      "uploadedAt": "2025-12-09T01:35:22.940274+07:00",
+      "transcript": "Hello? Hello? Hello? Hello?"
+    }
+  ],
+  "finished": false,
+  "questionsCount": 0,
+  "logs": [
+    {
+      "at": "2025-12-09T01:34:59.753349+07:00",
+      "event": "session/start"
+    },
+    {
+      "at": "2025-12-09T01:35:22.940284+07:00",
+      "event": "upload-one",
+      "q": 1
+    }
+  ]
+}
