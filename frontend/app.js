@@ -20,6 +20,8 @@ const btnNext          = document.getElementById("btn-next");
 const btnFinish        = document.getElementById("btn-finish");
 const statusText       = document.getElementById("status-text");
 const btnRetryUpload   = document.getElementById("btn-retry-upload");
+let blurEnabled = true;
+
 
 // ===== BIẾN TRẠNG THÁI =====
 let currentToken = null;
@@ -154,6 +156,77 @@ async function initCamera() {
   }
 }
 
+/* ==========================
+    BLUR BACKGROUND AI
+========================== */
+const blurCanvas = document.getElementById("blur-bg");
+const blurCtx = blurCanvas.getContext("2d");
+
+const videoRaw = document.createElement("video");
+videoRaw.autoplay = true;
+videoRaw.playsinline = true;
+videoRaw.muted = true;
+
+async function startBlurBackground() {
+    const stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: 1280, height: 720 }
+    });
+
+    videoRaw.srcObject = stream;
+
+    videoRaw.onloadeddata = () => {
+        blurCanvas.width = videoRaw.videoWidth;
+        blurCanvas.height = videoRaw.videoHeight;
+        renderBlurLoop();
+    };
+}
+
+const selfieSegmentation = new SelfieSegmentation.SelfieSegmentation({
+    locateFile: (file) =>
+        `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`
+});
+
+selfieSegmentation.setOptions({
+    modelSelection: 1
+});
+
+selfieSegmentation.onResults(results => {
+    blurCtx.clearRect(0, 0, blurCanvas.width, blurCanvas.height);
+
+    if (!blurEnabled) {
+        // Hiển thị video bình thường khi tắt blur
+        blurCtx.drawImage(videoRaw, 0, 0, blurCanvas.width, blurCanvas.height);
+        return;
+    }
+
+    const mask = results.segmentationMask;
+
+    // Nền mờ
+    blurCtx.save();
+    blurCtx.filter = "blur(20px)";
+    blurCtx.drawImage(mask, 0, 0, blurCanvas.width, blurCanvas.height);
+    blurCtx.restore();
+
+    // Người rõ
+    blurCtx.save();
+    blurCtx.globalCompositeOperation = "source-in";
+    blurCtx.drawImage(videoRaw, 0, 0, blurCanvas.width, blurCanvas.height);
+    blurCtx.restore();
+
+    // Nền mờ phía sau
+    blurCtx.save();
+    blurCtx.globalCompositeOperation = "destination-over";
+    blurCtx.filter = "blur(20px)";
+    blurCtx.drawImage(videoRaw, 0, 0, blurCanvas.width, blurCanvas.height);
+    blurCtx.restore();
+});
+
+async function renderBlurLoop() {
+    await selfieSegmentation.send({ image: videoRaw });
+    requestAnimationFrame(renderBlurLoop);
+}
+
+startBlurBackground();
 
 // ===== RECORDER =====
 function setupRecorder() {
