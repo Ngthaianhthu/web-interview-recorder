@@ -21,6 +21,7 @@ const btnFinish        = document.getElementById("btn-finish");
 const statusText       = document.getElementById("status-text");
 const btnRetryUpload   = document.getElementById("btn-retry-upload");
 let blurEnabled = true;
+const btnToggleBlur = document.getElementById("btn-toggle-blur");
 
 
 // ===== BIẾN TRẠNG THÁI =====
@@ -162,12 +163,13 @@ async function initCamera() {
 const blurCanvas = document.getElementById("blur-bg");
 const blurCtx = blurCanvas.getContext("2d");
 
+
 const videoRaw = document.createElement("video");
 videoRaw.autoplay = true;
 videoRaw.playsinline = true;
 videoRaw.muted = true;
 
-async function startBlurBackground() {
+async function startBlurBackgroundWithStream(mediaStream) {
     const stream = await navigator.mediaDevices.getUserMedia({
         video: { width: 1280, height: 720 }
     });
@@ -226,7 +228,6 @@ async function renderBlurLoop() {
     requestAnimationFrame(renderBlurLoop);
 }
 
-startBlurBackground();
 
 // ===== RECORDER =====
 function setupRecorder() {
@@ -318,8 +319,14 @@ btnStart.addEventListener("click", async () => {
 
     // 3) xin quyền camera
     await initCamera();
+    // 4) start blur background
+    startBlurBackground();
+    btnToggleBlur.addEventListener("click", () => {
+      blurEnabled = !blurEnabled;
+      btnToggleBlur.textContent = blurEnabled ? "Tắt Blur" : "Bật Blur";
+  });
 
-    // 4) setup recorder
+    // 5) setup recorder
     setupRecorder();
     updateQuestionTitle();
 
