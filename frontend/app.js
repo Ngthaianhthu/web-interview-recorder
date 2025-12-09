@@ -20,9 +20,6 @@ const btnNext          = document.getElementById("btn-next");
 const btnFinish        = document.getElementById("btn-finish");
 const statusText       = document.getElementById("status-text");
 const btnRetryUpload   = document.getElementById("btn-retry-upload");
-let blurEnabled = true;
-const btnToggleBlur = document.getElementById("btn-toggle-blur");
-
 
 // ===== BIẾN TRẠNG THÁI =====
 let currentToken = null;
@@ -157,100 +154,6 @@ async function initCamera() {
   }
 }
 
-// ====== BLUR BACKGROUND AI (SỬA) ======
-const blurCanvas = document.getElementById("blur-bg");
-const blurCtx = blurCanvas ? blurCanvas.getContext("2d") : null;
-
-const videoRaw = document.createElement("video");
-videoRaw.autoplay = true;
-videoRaw.playsinline = true;
-videoRaw.muted = true;
-
-async function startBlurBackgroundWithStream(mediaStream) {
-  // mediaStream: stream đã được tạo ở initCamera (đã ghép audio+video)
-  if (!mediaStream) {
-    console.warn("startBlurBackgroundWithStream: mediaStream chưa có.");
-    return;
-  }
-
-  if (!blurCanvas || !blurCtx) {
-    console.warn("Không tìm thấy #blur-bg canvas trong HTML. Bỏ qua blur.");
-    // nếu không có canvas, vẫn gán preview video thường
-    videoPreview.srcObject = mediaStream;
-    return;
-  }
-
-  // gán stream đã có cho videoRaw (không gọi getUserMedia nữa)
-  videoRaw.srcObject = mediaStream;
-
-  videoRaw.onloadeddata = () => {
-    // đảm bảo có kích thước video trước khi set canvas
-    blurCanvas.width = videoRaw.videoWidth || 1280;
-    blurCanvas.height = videoRaw.videoHeight || 720;
-    renderBlurLoop();
-  };
-}
-
-// --- khởi tạo SelfieSegmentation (nếu thư viện đã load) ---
-let selfieSegmentation = null;
-if (typeof SelfieSegmentation !== "undefined") {
-  selfieSegmentation = new SelfieSegmentation({
-    locateFile: (file) =>
-      `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`
-  });
-
-  selfieSegmentation.setOptions({
-    modelSelection: 1
-  });
-
-  selfieSegmentation.onResults(results => {
-    if (!blurCtx || !blurCanvas) return;
-
-    blurCtx.clearRect(0, 0, blurCanvas.width, blurCanvas.height);
-
-    if (!blurEnabled) {
-      // Hiển thị video bình thường khi tắt blur
-      blurCtx.drawImage(videoRaw, 0, 0, blurCanvas.width, blurCanvas.height);
-      return;
-    }
-
-    const mask = results.segmentationMask;
-
-    // Nền mờ (dùng mask)
-    blurCtx.save();
-    blurCtx.filter = "blur(20px)";
-    blurCtx.drawImage(mask, 0, 0, blurCanvas.width, blurCanvas.height);
-    blurCtx.restore();
-
-    // Người rõ
-    blurCtx.save();
-    blurCtx.globalCompositeOperation = "source-in";
-    blurCtx.drawImage(videoRaw, 0, 0, blurCanvas.width, blurCanvas.height);
-    blurCtx.restore();
-
-    // Nền mờ phía sau (destination-over)
-    blurCtx.save();
-    blurCtx.globalCompositeOperation = "destination-over";
-    blurCtx.filter = "blur(20px)";
-    blurCtx.drawImage(videoRaw, 0, 0, blurCanvas.width, blurCanvas.height);
-    blurCtx.restore();
-  });
-} else {
-  console.warn("SelfieSegmentation chưa được load. Hãy include script CDN của MediaPipe trước.");
-}
-
-async function renderBlurLoop() {
-  if (!selfieSegmentation) return;
-  try {
-    await selfieSegmentation.send({ image: videoRaw });
-  } catch (err) {
-    // đôi khi gửi khi video chưa sẵn sàng sẽ lỗi, tránh dừng vòng lặp
-    // console.warn("renderBlurLoop error:", err);
-  }
-  requestAnimationFrame(renderBlurLoop);
-}
-
-
 
 // ===== RECORDER =====
 function setupRecorder() {
@@ -343,26 +246,7 @@ btnStart.addEventListener("click", async () => {
     // 3) xin quyền camera
     await initCamera();
 
-    // 4) start blur background: truyền stream đã tạo (stream = finalStream ở initCamera)
-    // lưu ý: stream được set trong initCamera thành biến global `stream`
-    try {
-      await startBlurBackgroundWithStream(stream);
-    } catch (err) {
-      console.warn("Không thể start blur background:", err);
-    }
-
-    // bật/tắt blur: kiểm tra tồn tại nút trước khi addEventListener
-    if (btnToggleBlur) {
-      btnToggleBlur.addEventListener("click", () => {
-        blurEnabled = !blurEnabled;
-        btnToggleBlur.textContent = blurEnabled ? "Tắt Blur" : "Bật Blur";
-      });
-      btnToggleBlur.textContent = blurEnabled ? "Tắt Blur" : "Bật Blur";
-    } else {
-      console.warn("#btn-toggle-blur không tìm thấy trong HTML.");
-    }
-
-    // 5) setup recorder
+    // 4) setup recorder
     setupRecorder();
     updateQuestionTitle();
 
