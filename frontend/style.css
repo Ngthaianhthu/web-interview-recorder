@@ -166,6 +166,28 @@ video {
   cursor: pointer;
   font-size: 16px;
 }
+/* NÚT BẬT/TẮT BLUR */
+#btn-toggle-blur {
+    display: block;
+    margin: 20px auto 0;   /* canh giữa, cách trên 20px */
+    padding: 12px 26px;
+    border-radius: 18px;
+    border: none;
+    background: #42210b;
+    color: #e6e6e6;
+    font-size: 16px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+#btn-toggle-blur:hover {
+    opacity: 0.8;
+}
+
+#btn-toggle-blur:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
 
 button:disabled {
   opacity: 0.5;
