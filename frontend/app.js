@@ -21,6 +21,61 @@ const btnFinish        = document.getElementById("btn-finish");
 const statusText       = document.getElementById("status-text");
 const btnRetryUpload   = document.getElementById("btn-retry-upload");
 
+/* ==========================
+    BLUR BACKGROUND AI
+========================== */
+const blurCanvas = document.getElementById("blur-bg");
+const blurCtx = blurCanvas.getContext("2d");
+const videoRaw = document.createElement("video");
+videoRaw.autoplay = true;
+videoRaw.playsinline = true;
+videoRaw.muted = true;
+
+async function startBlurBackground() {
+    const stream = await navigator.mediaDevices.getUserMedia({
+        video: { width: 1280, height: 720 }
+    });
+
+    videoRaw.srcObject = stream;
+
+    videoRaw.onloadeddata = () => {
+        blurCanvas.width = videoRaw.videoWidth;
+        blurCanvas.height = videoRaw.videoHeight;
+        renderBlurLoop();
+    };
+}
+
+const segmenter = new SelfieSegmentation({ modelSelection: 1 });
+
+segmenter.onResults(results => {
+    const mask = results.segmentationMask;
+
+    // Blur background
+    blurCtx.save();
+    blurCtx.filter = "blur(18px)";
+    blurCtx.drawImage(videoRaw, 0, 0, blurCanvas.width, blurCanvas.height);
+    blurCtx.restore();
+
+    // Keep person area
+    blurCtx.save();
+    blurCtx.globalCompositeOperation = "destination-in";
+    blurCtx.drawImage(mask, 0, 0, blurCanvas.width, blurCanvas.height);
+    blurCtx.restore();
+
+    // Draw person clear
+    blurCtx.save();
+    blurCtx.globalCompositeOperation = "destination-over";
+    blurCtx.drawImage(videoRaw, 0, 0, blurCanvas.width, blurCanvas.height);
+    blurCtx.restore();
+});
+
+async function renderBlurLoop() {
+    await segmenter.send({ image: videoRaw });
+    requestAnimationFrame(renderBlurLoop);
+}
+
+startBlurBackground();
+
 // ===== BIẾN TRẠNG THÁI =====
 let currentToken = null;
 let currentFolder = null;
