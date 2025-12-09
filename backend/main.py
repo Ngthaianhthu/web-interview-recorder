@@ -191,8 +191,7 @@ async def upload_one(
     if bytes_to_mb(len(data)) > MAX_MB:
         raise HTTPException(status_code=400, detail=f"File too large > {MAX_MB} MB")
 
-    # 1) LƯU FILE VIDEO
-    # 1) LƯU FILE VIDEO với đuôi thật
+    # ======== 1) LƯU FILE VIDEO với đuôi thật ========
     ext = Path(video.filename or "").suffix.lower()
     if not ext:
         ext = ".webm"   # fallback khi browser không gửi filename
@@ -220,7 +219,6 @@ async def upload_one(
         if tmp_audio.exists():
             tmp_audio.unlink()
 
-
     # ======== 3) GHI transcript.txt ========
     transcript_file = folder_path / "transcript.txt"
     old = ""
@@ -235,7 +233,6 @@ async def upload_one(
         tf.write(old.strip())
         tf.write(f"\n\n=== Question {questionIndex} ===\n")
         tf.write(transcript_text + "\n")
-
 
     # ======== 4) CẬP NHẬT META ========
     uploads = meta.setdefault("uploaded", [])
@@ -266,7 +263,6 @@ async def upload_one(
         "savedAs": out_name,
         "transcript": transcript_text
     }
-
 
 @app.post("/api/session/finish")
 def session_finish(req: FinishReq):
