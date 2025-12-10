@@ -58,7 +58,7 @@ python -m http.server 8000
 ```
 #### 4. Open in your browser
 
-### Option 2: Using CMD + Python venv (For backend)
+### Option 2: Using CMD + Python venv
 #### **1. Create a virtual environment and activate it
 ```bash
 python -m venv venv
