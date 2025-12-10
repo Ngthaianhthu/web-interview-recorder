@@ -57,9 +57,30 @@
             <button id="btn-next" disabled>next</button>
             <button id="btn-finish">finish</button>
         </div>
-
+        <button id="btn-retry-upload" style="display:none;">retry upload</button>
         <p id="status-text"></p>
     </section>
+
+<!-- CAMERA PERMISSION MODAL -->
+<div id="camera-permission-modal" 
+     style="display:none; 
+            position:fixed; 
+            top:0; left:0; right:0; bottom:0; 
+            background:rgba(0,0,0,0.6); 
+            justify-content:center; 
+            align-items:center;
+            z-index:9999;">
+
+    <div style="background:white; padding:20px; border-radius:8px; text-align:center;">
+        <h3>Camera & Microphone Permission Required</h3>
+        <p>Please allow your browser to access the camera and microphone.</p>
+        <button id="close-permission-modal" 
+                style="margin-top:10px; padding:6px 14px;">
+            Close
+        </button>
+    </div>
+
+</div>
 
     <script defer src="./app.js"></script>
 </body>
