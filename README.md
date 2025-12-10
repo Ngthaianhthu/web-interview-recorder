@@ -7,8 +7,8 @@ Web Interview Recorder is a lightweight web application that allows users to rec
 - Export recordings as downloadable files   
 - Simple and clean interface
 
-## Project structures
-```
+## Architecture
+```graphql
 web-interview-recorder/
 ├── backend/
 │ ├── pycache/ # Python cache files
@@ -22,6 +22,14 @@ web-interview-recorder/
 │ └── style.css # frontend styles
 ├── run.sh # macOS / unix helper script
 └── README.md
+```
+High-level architecture overview
+```arduino
+ ┌─────────────────┐        HTTP API         ┌────────────────────┐
+ │  Frontend (JS)  │  ───────────────────▶   │   Backend (FastAPI) │
+ │  - MediaRecorder │                       │   - Save files       │
+ │  - UI/Controls   │  ◀───────────────────  │   - Process audio    │
+ └─────────────────┘        JSON/Files       └────────────────────┘
 ```
 ---
 # **Getting Started**
@@ -80,7 +88,7 @@ Download: https://www.apachefriends.org/
 #### 2. 2. Copy the frontend folder into XAMPP htdocs
 Example: `C:\xampp\htdocs\web-interview-recorder\`
 Your structure should look like:
-```
+```graphql
 htdocs/
 └── web-interview-recorder/
     ├── index.html
