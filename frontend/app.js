@@ -31,11 +31,11 @@ let mediaRecorder = null;
 let recordedChunks = [];
 
 const QUESTIONS = [
-  "Hãy giới thiệu ngắn gọn về bản thân và kinh nghiệm nổi bật của bạn.",
-  "Tại sao bạn muốn ứng tuyển vào vị trí này trong công ty?",
-  "Điểm mạnh lớn nhất của bạn trong công việc là gì? Hãy nêu ví dụ cụ thể.",
-  "Điểm yếu nào bạn đang cố cải thiện? Bạn đã làm gì để cải thiện nó?",
-  "Hãy kể về một thành tựu mà bạn tự hào nhất trong sự nghiệp và cách bạn đạt được nó."
+  "Please briefly introduce yourself and highlight your notable experience.",
+  "Why do you want to apply for this position in our company?",
+  "What is your greatest strength at work? Please provide a specific example.",
+  "What weakness are you currently trying to improve? What have you done to work on it?",
+  "Tell us about an achievement in your career that you are most proud of and how you accomplished it."
 ];
 
 // ===== API CALLS =====
@@ -45,7 +45,7 @@ async function apiVerifyToken(token) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ token })
   });
-  if (!res.ok) throw new Error("Token không hợp lệ");
+  if (!res.ok) throw new Error("Invalid token");
   return res.json();
 }
 
@@ -56,7 +56,7 @@ async function apiStartSession(token, userName) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ token, userName })
   });
-  if (!res.ok) throw new Error("Không tạo được phiên phỏng vấn");
+  if (!res.ok) throw new Error("Unable to create interview session.");
   return res.json();
 }
 
@@ -69,7 +69,7 @@ async function apiUploadOne(token, folder, questionIndex, blob) {
   form.append("video", new File([blob], `Q${questionIndex}.webm`, { type: "video/webm" }));
 
   const res = await fetch(`${API_BASE}/api/upload-one`, { method: "POST", body: form });
-  if (!res.ok) throw new Error("Upload thất bại");
+  if (!res.ok) throw new Error("Upload failed.");
   return res.json();
 }
 
@@ -80,7 +80,7 @@ async function apiFinishSession(token, folder, questionsCount) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ token, folder, questionsCount })
   });
-  if (!res.ok) throw new Error("Finish session lỗi");
+  if (!res.ok) throw new Error("Finish session error");
   return res.json();
 }
 
@@ -88,7 +88,7 @@ async function apiFinishSession(token, folder, questionsCount) {
 // xin quyền cam/mic và hiện preview
 // ===== CAMERA + NOISE CANCELLATION =====
 async function initCamera() {
-  statusText.textContent = "Đang xin quyền camera…";
+  statusText.textContent = "Requesting camera permission…";
 
   try {
     // --- STEP 1: Lấy stream gốc với noise suppression của browser ---
@@ -138,19 +138,19 @@ async function initCamera() {
     videoPreview.srcObject = finalStream;
 
     stream = finalStream; // Đây là stream dùng để record
-    statusText.textContent = "Đã bật camera + noise cancellation.";
+    statusText.textContent = "Camera and noise cancellation are enabled.";
 
   } catch (err) {
     console.error("Camera error:", err);
 
     if (err.name === "NotAllowedError") {
-      statusText.textContent = "Bạn đã từ chối quyền camera/micro.";
+      statusText.textContent = "You have denied camera/microphone permission.";
       showCameraPermissionModal();
       btnRecord.disabled = true;
       return;
     }
 
-    statusText.textContent = "Không thể truy cập camera.";
+    statusText.textContent = "Unable to access the camera.";
   }
 }
 
@@ -170,15 +170,15 @@ function setupRecorder() {
 
     const blob = new Blob(recordedChunks, { type: "video/webm" });
 
-    statusText.textContent = "Đang upload video...";
+    statusText.textContent = "Uploading video...";
 
     try {
       await uploadWithRetry(blob, currentQuestionIndex);
-      statusText.textContent = "Upload xong!";
+      statusText.textContent = "Upload complete!";
       btnNext.disabled = false;
       btnRetryUpload.style.display = "none";
     } catch {
-      statusText.textContent = "Upload thất bại. Nhấn Retry.";
+      statusText.textContent = "Upload failed. Press Retry.";
       btnRetryUpload.style.display = "inline-block";
 
       window._lastFailedBlob = blob;
@@ -227,12 +227,12 @@ btnStart.addEventListener("click", async () => {
   const token = tokenInput.value.trim();
   const safeName = sanitizeName(nameInput.value);
 
-  if (!token) return startMessage.textContent = "Vui lòng nhập token.";
+  if (!token) return startMessage.textContent = "Please enter the token.";
   if (!safeName)
-    return startMessage.textContent = "Tên không hợp lệ (a-z, 0-9, không dấu).";
+    return startMessage.textContent = "Invalid name (a–z, 0–9, no accents).";
 
   btnStart.disabled = true;
-  startMessage.textContent = "Đang kiểm tra token...";
+  startMessage.textContent = "Checking token...";
 
   try {
     // 1) verify token
@@ -253,7 +253,7 @@ btnStart.addEventListener("click", async () => {
     // chuyển sang màn phỏng vấn
     startScreen.style.display = "none";
     interviewScreen.style.display = "block";
-    statusText.textContent = "Sẵn sàng ghi câu hỏi 1.";
+    statusText.textContent = "Ready to record question 1.";
 
   } catch (err) {
     startMessage.textContent = err.message;
@@ -269,7 +269,7 @@ btnRecord.addEventListener("click", () => {
   recordedChunks = [];
   mediaRecorder.start();
 
-  statusText.textContent = "Đang ghi hình...";
+  statusText.textContent = "Recording...";
   btnRecord.disabled = true;
   btnStop.disabled = false;
   btnNext.disabled = true;
@@ -290,29 +290,29 @@ btnNext.addEventListener("click", () => {
     // chuẩn bị cho lần ghi tiếp theo
     btnRecord.disabled = false;
     btnNext.disabled = true;
-    statusText.textContent = `Sẵn sàng ghi câu hỏi ${currentQuestionIndex}.`;
+    statusText.textContent = `Ready to record question ${currentQuestionIndex}.`;
   } else {
-    statusText.textContent = "Đã hết câu hỏi! Vui lòng ấn Finish để gửi bài phỏng vấn!";
+    statusText.textContent = "All questions completed! Please press Finish to submit your interview!";
   }
 });
 
 // Khi bấm "Finish"
 btnFinish.addEventListener("click", async () => {
-  statusText.textContent = "Đang hoàn tất phiên...";
+  statusText.textContent = "Finalizing session...";
   btnFinish.disabled = true;
 
   try {
     await apiFinishSession(currentToken, currentFolder, MAX_QUESTIONS);
-    statusText.textContent = "Hoàn tất phỏng vấn!";
+    statusText.textContent = "Interview completed!";
   } catch {
-    statusText.textContent = "Finish lỗi.";
+    statusText.textContent = "Finish error.";
     btnFinish.disabled = false;
   }
 });
 
 btnRetryUpload.addEventListener("click", async () => {
   if (!window._lastFailedBlob) {
-    statusText.textContent = "Không có video để retry.";
+    statusText.textContent = "No video available to retry.";
     return;
   }
 
@@ -321,10 +321,10 @@ btnRetryUpload.addEventListener("click", async () => {
 
   try {
     await uploadWithRetry(window._lastFailedBlob, window._lastFailedIndex);
-    statusText.textContent = "Retry thành công!";
+    statusText.textContent = "Retry successful!";
     btnRetryUpload.style.display = "none";
   } catch {
-    statusText.textContent = "Retry thất bại.";
+    statusText.textContent = "Retry failed.";
   } finally {
     btnRetryUpload.disabled = false;
   }
