@@ -8,6 +8,7 @@ Web Interview Recorder is a lightweight web application that allows users to rec
 - Simple and clean interface
 
 ## Project structures
+```
 web-interview-recorder/
 ├── backend/
 │ ├── pycache/ # Python cache files
@@ -21,7 +22,7 @@ web-interview-recorder/
 │ └── style.css # frontend styles
 ├── run.sh # macOS / unix helper script
 └── README.md
-
+```
 ---
 # **Getting Started**
 Below are step-by-step instructions for both **macOS** and **Windows** users.
@@ -79,12 +80,14 @@ Download: https://www.apachefriends.org/
 #### 2. 2. Copy the frontend folder into XAMPP htdocs
 Example: `C:\xampp\htdocs\web-interview-recorder\`
 Your structure should look like:
+```
 htdocs/
 └── web-interview-recorder/
     ├── index.html
     ├── app.js
     ├── style.css
     └── assets/
+```
 #### 3. Start Apache from XAMPP Control Panel
 #### 4. Access the frontend in your browser
 `http://localhost/web-interview-recorder/`
