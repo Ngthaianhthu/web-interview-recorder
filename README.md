@@ -6,7 +6,7 @@ Web Interview Recorder is a lightweight web application that allows users to rec
 - Record audio through the browser  
 - Export recordings as downloadable files   
 - Simple and clean interface
-
+---
 ## Architecture
 ```graphql
 web-interview-recorder/
@@ -25,14 +25,72 @@ web-interview-recorder/
 ```
 High-level architecture overview
 ```arduino
- ┌─────────────────┐        HTTP API         ┌────────────────────┐
- │  Frontend (JS)  │  ───────────────────▶   │   Backend (FastAPI) │
- │  - MediaRecorder │                       │   - Save files       │
- │  - UI/Controls   │  ◀───────────────────  │   - Process audio    │
- └─────────────────┘        JSON/Files       └────────────────────┘
+ ┌─────────────────┐        HTTP API         ┌─────────────────────┐
+ │  Frontend (JS)  │  ───────────────────▶   │   Backend (FastAPI)│
+ │  - MediaRecorder│                         │  - Save files       │
+ │  - UI/Controls  │  ◀───────────────────   │   - Process audio  │
+ └─────────────────┘        JSON/Files       └─────────────────────┘
 ```
 ---
-# **Getting Started**
+## Workflow
+```pgsql
+ ┌──────────────────────────────┐
+ │          User UI             │
+ │ 1. User enters API Token     │
+ │ 2. Token is stored locally   │
+ └───────────────┬──────────────┘
+                 │
+                 ▼
+       ┌────────────────────────────┐
+       │ Frontend (JavaScript)      │
+       │ - Validates token locally  │
+       │ - Enables recording UI     │
+       └──────────────┬─────────────┘
+                      │
+                      ▼
+          ┌───────────────────────────┐
+          │ Browser Media APIs        │
+          │ (getUserMedia + MediaRec.)│
+          │ - Capture audio/video     │
+          │ - Build Blob chunks       │
+          └──────────────┬────────────┘
+                         │
+                         ▼
+          ┌──────────────────────────┐
+          │ Stop Recording Event     │
+          │ Blob → File (mp4/webm)   │
+          └──────────────┬───────────┘
+                         │
+                         ▼
+   ┌────────────────────────────────────────────┐
+   │ FRONTEND → BACKEND (FastAPI)               │
+   │ - Sends file + token via POST /upload      │
+   │ - Options:                                 │
+   │     * save only                            │
+   │     * run speech-to-text (Whisper)         │
+   └──────────────────────┬─────────────────────┘
+                          │
+                          ▼
+            ┌────────────────────────────────┐
+            │ BACKEND (FastAPI)              │
+            │ 1. Validate token              │
+            │ 2. Save raw media file         │
+            │ 3. If STT enabled:             │
+            │    - Call Whisper/OpenAI STT   │
+            │    - Receive transcription     │
+            │ 4. Save transcript as .txt     │
+            └──────────────────┬─────────────┘
+                               │
+                               ▼
+              ┌────────────────────────────┐
+              │ Response to Frontend       │
+              │ - success status           │
+              │ - file paths (media + txt) │
+              │ - transcription text       │
+              └────────────────────────────┘
+```
+---
+# **Instructions**
 Below are step-by-step instructions for both **macOS** and **Windows** users.
 
 ## **macOS setup**
@@ -100,7 +158,6 @@ htdocs/
 #### 4. Access the frontend in your browser
 `http://localhost/web-interview-recorder/`
 
----
 ## Notes
 - Whisper packages (e.g., test_whisper, openai-whisper) may download additional files on first use.
 - XAMPP is used only for the frontend; it does not run Python code.
